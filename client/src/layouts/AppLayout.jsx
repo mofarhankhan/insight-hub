@@ -1,3 +1,4 @@
+import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { BarChart3, Users, CreditCard, Layers3, Settings, LayoutDashboard, LogOut, Bell, Search, Sparkles } from 'lucide-react';
 

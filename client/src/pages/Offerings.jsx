@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect,useState } from 'react';
 import { Layers3, TrendingUp, TrendingDown } from 'lucide-react';
 import api from '../services/api';
