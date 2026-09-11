@@ -1,0 +1,54 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: insight-hub-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: insighthub
+      MYSQL_USER: insightuser
+      MYSQL_PASSWORD: Insight@123
+      MYSQL_ROOT_PASSWORD: Root@123
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - insight-hub-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: insight-hub-backend:1.0
+    container_name: insight-hub-backend
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      DB_HOST: mysql
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - insight-hub-network
+
+ 
+  frontend:
+    image: insight-hub-frontend:1.0
+    container_name: insight-hub-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - insight-hub-network
+
+volumes:
+  mysql_data:
+
+networks:
+  insight-hub-network:
+    driver: bridge
+
+    
