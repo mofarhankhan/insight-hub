@@ -1,7 +1,6 @@
 pipeline {
 agent any
 
-```
 environment {
     BACKEND_IMAGE = "insight-hub-backend"
     FRONTEND_IMAGE = "insight-hub-frontend"
@@ -212,7 +211,7 @@ post {
         echo 'Pipeline execution finished.'
     }
 }
-```
+
 
 }
 
