@@ -2,6 +2,9 @@
   "name": "insight-hub-server",
   "version": "1.0.0",
   "private": true,
+  "overrides": {
+  "qs": "6.16.0"
+  },
   "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",

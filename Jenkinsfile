@@ -1,217 +1,105 @@
 pipeline {
-agent any
+    agent any
 
-environment {
-    BACKEND_IMAGE = "insight-hub-backend"
-    FRONTEND_IMAGE = "insight-hub-frontend"
-    IMAGE_TAG = "${BUILD_NUMBER}"
-}
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
 
-stages {
+    environment {
+        BACKEND_IMAGE  = "insight-hub-backend"
+        FRONTEND_IMAGE = "insight-hub-frontend"
+        IMAGE_TAG      = "${BUILD_NUMBER}"
+    }
 
-    stage('Checkout') {
-        steps {
-            echo 'Checking out InsightHub source code...'
+    stages {
 
-            git branch: 'main',
-                credentialsId: 'github-credentials',
-                url: 'https://github.com/mofarhankhan/insight-hub.git'
+        stage('Checkout') {
+            steps {
+                echo 'Checking out source code...'
+
+                git branch: 'main',
+                    credentialsId: 'github-credentials',
+                    url: 'https://github.com/mofarhankhan/insight-hub.git'
+            }
+        }
+
+        stage('Install Backend Dependencies') {
+            steps {
+                dir('server') {
+                    sh 'npm ci'
+                }
+            }
+        }
+
+        stage('Install Frontend Dependencies') {
+            steps {
+                dir('client') {
+                    sh 'npm ci'
+                }
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                dir('client') {
+                    sh 'npm run build'
+                }
+            }
+        }
+
+        stage('Filesystem Security Scan') {
+            steps {
+                sh '''
+                    trivy fs . \
+                        --severity HIGH,CRITICAL \
+                        --exit-code 1 \
+                        --no-progress
+                '''
+            }
+        }
+
+        stage('Build Backend Image') {
+            steps {
+                sh '''
+                    docker build \
+                        -t ${BACKEND_IMAGE}:${IMAGE_TAG} \
+                        ./server
+                '''
+            }
+        }
+
+        stage('Build Frontend Image') {
+            steps {
+                sh '''
+                    docker build \
+                        -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
+                        ./client
+                '''
+            }
+        }
+
+        stage('Verify Docker Images') {
+            steps {
+                sh '''
+                    docker image inspect ${BACKEND_IMAGE}:${IMAGE_TAG}
+                    docker image inspect ${FRONTEND_IMAGE}:${IMAGE_TAG}
+                '''
+            }
         }
     }
 
-
-    stage('Verify Project Structure') {
-        steps {
-            sh '''
-                set -e
-
-                echo "===== Workspace ====="
-                pwd
-
-                echo "===== Project Files ====="
-                ls -la
-
-                echo "===== Client Files ====="
-                ls -la client
-
-                echo "===== Server Files ====="
-                ls -la server
-
-                test -f client/package.json
-                test -f server/package.json
-                test -f client/Dockerfile
-                test -f server/Dockerfile
-
-                echo "Project structure validation successful!"
-            '''
+    post {
+        always {
+            echo 'Pipeline execution finished.'
         }
-    }
 
-
-    stage('Install Backend Dependencies') {
-        steps {
-            sh '''
-                set -e
-
-                echo "Installing backend dependencies..."
-
-                cd server
-
-                npm ci
-
-                echo "Backend dependencies installed successfully!"
-            '''
+        success {
+            echo 'CI and filesystem security checks completed successfully!'
         }
-    }
 
-
-    stage('Install Frontend Dependencies') {
-        steps {
-            sh '''
-                set -e
-
-                echo "Installing frontend dependencies..."
-
-                cd client
-
-                npm ci
-
-                echo "Frontend dependencies installed successfully!"
-            '''
-        }
-    }
-
-
-    stage('Frontend Production Build') {
-        steps {
-            sh '''
-                set -e
-
-                echo "Building frontend for production..."
-
-                cd client
-
-                npm run build
-
-                test -d dist
-
-                echo "Frontend production build successful!"
-            '''
-        }
-    }
-
-
-    stage('Dependency Security Audit') {
-        steps {
-            sh '''
-                set +e
-
-                echo "===== Backend Dependency Security Audit ====="
-
-                cd server
-                npm audit --audit-level=high
-
-                BACKEND_AUDIT=$?
-
-                cd ..
-
-                echo "===== Frontend Dependency Security Audit ====="
-
-                cd client
-                npm audit --audit-level=high
-
-                FRONTEND_AUDIT=$?
-
-                cd ..
-
-                if [ $BACKEND_AUDIT -ne 0 ] || [ $FRONTEND_AUDIT -ne 0 ]; then
-                    echo "High severity dependency vulnerabilities detected!"
-                    exit 1
-                fi
-
-                echo "Dependency security audit passed!"
-            '''
-        }
-    }
-
-
-    stage('Docker Build Backend') {
-        steps {
-            sh '''
-                set -e
-
-                echo "Building backend Docker image..."
-
-                docker build \
-                    -t ${BACKEND_IMAGE}:${IMAGE_TAG} \
-                    ./server
-
-                echo "Backend Docker image built successfully!"
-            '''
-        }
-    }
-
-
-    stage('Docker Build Frontend') {
-        steps {
-            sh '''
-                set -e
-
-                echo "Building frontend Docker image..."
-
-                docker build \
-                    -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
-                    ./client
-
-                echo "Frontend Docker image built successfully!"
-            '''
-        }
-    }
-
-
-    stage('Verify Docker Images') {
-        steps {
-            sh '''
-                set -e
-
-                echo "===== Backend Image ====="
-
-                docker image inspect \
-                    ${BACKEND_IMAGE}:${IMAGE_TAG} \
-                    > /dev/null
-
-                echo "Backend image exists!"
-
-                echo "===== Frontend Image ====="
-
-                docker image inspect \
-                    ${FRONTEND_IMAGE}:${IMAGE_TAG} \
-                    > /dev/null
-
-                echo "Frontend image exists!"
-
-                echo "Docker image verification successful!"
-            '''
+        failure {
+            echo 'Pipeline failed. Check the failed stage before proceeding.'
         }
     }
 }
-
-
-post {
-
-    success {
-        echo 'CI pipeline completed successfully!'
-    }
-
-    failure {
-        echo 'Pipeline failed! Check Jenkins logs for details.'
-    }
-
-    always {
-        echo 'Pipeline execution finished.'
-    }
-}
-
-
-}
-
