@@ -1,105 +1,91 @@
 pipeline {
     agent any
 
-    options {
-        timestamps()
-        disableConcurrentBuilds()
-    }
-
-    environment {
-        BACKEND_IMAGE  = "insight-hub-backend"
+    environment{
+        BACKEND_IMAGE = "insight-hub-backend"
         FRONTEND_IMAGE = "insight-hub-frontend"
-        IMAGE_TAG      = "${BUILD_NUMBER}"
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
-
-        stage('Checkout') {
-            steps {
-                echo 'Checking out source code...'
-
-                git branch: 'main',
-                    credentialsId: 'github-credentials',
-                    url: 'https://github.com/mofarhankhan/insight-hub.git'
+        stage('Checkout'){
+            steps{
+                checkout scm
             }
         }
 
-        stage('Install Backend Dependencies') {
-            steps {
-                dir('server') {
-                    sh 'npm ci'
+        stage('Install Dependencies'){
+            parallel {
+
+                stage('Backend Dependencies') {
+                    steps{
+                        dir('server'){
+                            sh 'npm ci'
+                        }
+                    }
+                }
+
+                stage('Frontend Dependencies') {
+                    steps{
+                        dir('client'){
+                            sh 'npm ci'
+                        }
+                    }
                 }
             }
         }
 
-        stage('Install Frontend Dependencies') {
-            steps {
-                dir('client') {
-                    sh 'npm ci'
-                }
-            }
-        }
-
-        stage('Build Frontend') {
-            steps {
-                dir('client') {
-                    sh 'npm run build'
-                }
-            }
-        }
-
-        stage('Filesystem Security Scan') {
-            steps {
+        stage('Filesystem Security Scan'){
+            steps{
                 sh '''
                     trivy fs . \
+                        --scanners vuln,secret \
                         --severity HIGH,CRITICAL \
-                        --exit-code 1 \
-                        --no-progress
+                        --exit-code 1
                 '''
             }
         }
 
-        stage('Build Backend Image') {
-            steps {
-                sh '''
-                    docker build \
-                        -t ${BACKEND_IMAGE}:${IMAGE_TAG} \
-                        ./server
-                '''
+        stage('Build Docker Images'){
+            parallel{
+
+                stage('Build Backend Image'){
+                    steps{
+                        sh '''
+                            docker build \
+                                --tag ${BACKEND_IMAGE}:${IMAGE_TAG} \
+                                server
+                        '''
+                    }
+                }
+
+                stage('Build Frontend Image'){
+                    steps{
+                        sh '''
+                            docker build \
+                                --tag ${FRONTEND_IMAGE}:${IMAGE_TAG} \
+                                client
+                        '''
+                    }
+                }
             }
         }
 
-        stage('Build Frontend Image') {
-            steps {
-                sh '''
-                    docker build \
-                        -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
-                        ./client
-                '''
-            }
-        }
-
-        stage('Verify Docker Images') {
-            steps {
-                sh '''
-                    docker image inspect ${BACKEND_IMAGE}:${IMAGE_TAG}
-                    docker image inspect ${FRONTEND_IMAGE}:${IMAGE_TAG}
-                '''
-            }
-        }
     }
 
     post {
-        always {
-            echo 'Pipeline execution finished.'
+        always{
+            echo 'Pipeline Execution finished!!!'
         }
 
-        success {
-            echo 'CI and filesystem security checks completed successfully!'
+        success{
+            echo 'CI security checks and Docker builds completed successfully!!!'
         }
 
-        failure {
-            echo 'Pipeline failed. Check the failed stage before proceeding.'
+        failure{
+            echo 'Pipeline failed. Review the failed stage in Jenkins!!!'
         }
     }
+    
+
 }
