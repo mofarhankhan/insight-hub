@@ -1,7 +1,7 @@
 pipeline {
     agent any
 
-    environment{
+    environment {
         BACKEND_IMAGE = "insight-hub-backend"
         FRONTEND_IMAGE = "insight-hub-frontend"
         IMAGE_TAG = "${BUILD_NUMBER}"
@@ -76,23 +76,24 @@ pipeline {
 
                 stage('Scan Backend Image'){
                     steps{
-                        sh '''
+                        sh """
                             trivy image \
                                 --severity HIGH,CRITICAL \
                                 --exit-code 1 \
                                 ${BACKEND_IMAGE}:${IMAGE_TAG}
-                        '''
+                        """
                     }
                 }
 
                 stage('Scan Frontend Image'){
                     steps{
-                        sh '''
+                        sh """
                             trivy image \
                                 --severity HIGH,CRITICAL \
                                 --exit-code 1 \
                                 ${BACKEND_IAMGE}:${IMAGE_TAG}
-                        '''
+                        
+			            """
                     }
                 }
             }
