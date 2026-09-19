@@ -77,6 +77,9 @@ pipeline {
                 stage('Scan Backend Image'){
                     steps{
                         sh """
+
+                            echo "Scanning backend image: ${BACKEND_IMAGE}:${IMAGE_TAG}"
+
                             trivy image \
                                 --severity HIGH,CRITICAL \
                                 --exit-code 1 \
@@ -88,10 +91,13 @@ pipeline {
                 stage('Scan Frontend Image'){
                     steps{
                         sh """
+
+                            echo "Scanning frontend image: ${FRONTEND_IMAGE}:${IMAGE_TAG}"
+
                             trivy image \
                                 --severity HIGH,CRITICAL \
                                 --exit-code 1 \
-                                ${BACKEND_IAMGE}:${IMAGE_TAG}
+                                ${FRONTEND_IMAGE}:${IMAGE_TAG}
                         
 			            """
                     }
