@@ -97,9 +97,10 @@ pipeline {
         stage('Kubernetes Manifest Validation'){
             steps{
                 sh '''
-                    kubectl apply \
-                        --dry-run=client \
-                        -f k8s/
+                    kubeconform \
+                        -strict \
+			-summary
+                        k8s/
                 '''
             }
         }
