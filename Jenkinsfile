@@ -140,6 +140,14 @@ pipeline {
             }
         }
 
+        stage('Update Kubernetes Image Tag'){
+            steps{
+                sh '''
+                    sed -i "s/newTag: \\"[0-9.]*\\"/newTag: \\"${IMAGE_TAG}\\"/g" k8s/kustomization.yaml
+                '''
+            }
+        }
+
     }
 
     post {
