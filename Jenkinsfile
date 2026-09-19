@@ -72,37 +72,26 @@ pipeline {
         }
 
         stage('Docker Image Security Scan'){
+            steps{
 
-            stage('Scan Backend Image'){
-                steps{
-                    sh """
+                sh """
+                    echo "Scanning backend image: ${BACKEND_IMAGE}:${IMAGE_TAG}"
 
-                        echo "Scanning backend image: ${BACKEND_IMAGE}:${IMAGE_TAG}"
+                    trivy image \
+                        --severity HIGH,CRITICAL \
+                        --exit-code 1 \
+                        ${BACKEND_IMAGE}:${IMAGE_TAG}
+                """
 
-                        trivy image \
-                            --severity HIGH,CRITICAL \
-                            --exit-code 1 \
-                            ${BACKEND_IMAGE}:${IMAGE_TAG}
-                    """
-                }
+                sh """
+                    echo "Scanning frontend image: ${FRONTEND_IMAGE}:${IMAGE_TAG}"
+
+                    trivy image \
+                        --severity HIGH,CRITICAL \
+                        --exit-code 1 \
+                        ${FRONTEND_IMAGE}:${IMAGE_TAG}
+                """
             }
-
-            stage('Scan Frontend Image'){
-                steps{
-                    sh """
-
-                        echo "Scanning frontend image: ${FRONTEND_IMAGE}:${IMAGE_TAG}"
-
-                        trivy image \
-                            --severity HIGH,CRITICAL \
-                            --exit-code 1 \
-                            ${FRONTEND_IMAGE}:${IMAGE_TAG}
-                        
-			        """
-                }
-            }
-
-
         }
 
     }
