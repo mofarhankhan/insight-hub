@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+	    REGISTRY = "mofarhankhann"
         BACKEND_IMAGE = "insight-hub-backend"
         FRONTEND_IMAGE = "insight-hub-frontend"
         IMAGE_TAG = "${BUILD_NUMBER}"
@@ -102,6 +103,40 @@ pipeline {
 			-summary \
                         k8s/
                 '''
+            }
+        }
+
+        stage('Docker Registry Push'){
+            steps{
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]){
+                    sh '''
+                        echo "$DOCKER_PASSWORD" | docker login \
+                            --username "$DOCKER_USERNAME" \
+                            --password-stdin
+
+                        docker tag \
+                            ${BACKEND_IMAGE}:${IMAGE_TAG} \
+                            ${REGISTRY}/${BACKEND_IMAGE}:${IMAGE_TAG}
+
+                        docker tag \ 
+                            ${FRONTEND_IMAGE}:${IMAGE_TAG} \
+                            ${REGISTRY}/${FRONTEND_IMAGE}:${IMAGE_TAG}
+
+                        docker push \
+                            ${REGISTRY}/${BACKEND_IMAGE}:${IMAGE_TAG}
+
+                        docker push \
+                            ${REGISTRY}/${FRONTEND_IMAGE}:${IMAGE_TAG}
+
+                        docker logout
+                    '''
+                }
             }
         }
 
