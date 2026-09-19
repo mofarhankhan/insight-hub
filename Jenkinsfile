@@ -80,7 +80,7 @@ pipeline {
                             trivy image \
                                 --severity HIGH,CRITICAL \
                                 --exit-code 1 \
-                                ${BACKEND_IMAGE}:{IMAGE_TAG}
+                                ${BACKEND_IMAGE}:${IMAGE_TAG}
                         '''
                     }
                 }
@@ -91,7 +91,7 @@ pipeline {
                             trivy image \
                                 --severity HIGH,CRITICAL \
                                 --exit-code 1 \
-                                ${BACKEND_IAMGE}:{IMAGE_TAG}
+                                ${BACKEND_IAMGE}:${IMAGE_TAG}
                         '''
                     }
                 }
