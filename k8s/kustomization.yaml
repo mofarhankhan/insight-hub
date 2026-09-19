@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: insight-hub
+
+resources:
+  - namespace.yml
+  - configmap.yml
+  - secret.yml
+  - ingress.yml
+  - mysql/deployment.yaml
+  - mysql/service.yml
+  - mysql/pvc.yml
+  - backend/deployment.yml
+  - backend/service.yml
+  - frontend/deployment.yml
+  - frontend/service.yml
+
+images:
+  - name: insight-hub-backend
+    newName: mofarhankhann/insight-hub-backend
+    newTag: "1.0"
+
+  - name: insight-hub-frontend
+    newName: mofarhankhann/insight-hub-frontend
+    newTag: "1.0"
