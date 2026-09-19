@@ -99,7 +99,7 @@ pipeline {
                 sh '''
                     kubeconform \
                         -strict \
-			-summary
+			-summary \
                         k8s/
                 '''
             }
