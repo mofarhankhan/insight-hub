@@ -124,7 +124,7 @@ pipeline {
                             ${BACKEND_IMAGE}:${IMAGE_TAG} \
                             ${REGISTRY}/${BACKEND_IMAGE}:${IMAGE_TAG}
 
-                        docker tag \ 
+                        docker tag \
                             ${FRONTEND_IMAGE}:${IMAGE_TAG} \
                             ${REGISTRY}/${FRONTEND_IMAGE}:${IMAGE_TAG}
 
