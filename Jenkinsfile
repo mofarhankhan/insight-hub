@@ -98,10 +98,12 @@ pipeline {
         stage('Kubernetes Manifest Validation'){
             steps{
                 sh '''
+                    kubectl kustomize k8s/ > /tmp/insight-hub-rendered.yaml
+
                     kubeconform \
                         -strict \
-			-summary \
-                        k8s/
+                        -summary \
+                        /tmp/insight-hub-rendered.yaml
                 '''
             }
         }
