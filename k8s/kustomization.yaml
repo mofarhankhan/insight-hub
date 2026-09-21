@@ -19,8 +19,8 @@ resources:
 images:
   - name: insight-hub-backend
     newName: mofarhankhann/insight-hub-backend
-    newTag: "1.0"
+    newTag: "17"
 
   - name: insight-hub-frontend
     newName: mofarhankhann/insight-hub-frontend
-    newTag: "1.0"
+    newTag: "17"
