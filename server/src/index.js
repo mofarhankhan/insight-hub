@@ -9,9 +9,11 @@ import analyticsRoutes from './routes/analytics.js';
 import customerRoutes from './routes/customers.js';
 import transactionRoutes from './routes/transactions.js';
 import offeringRoutes from './routes/offerings.js';
+import { collectDefaultMetrics, register } from '@prometheus-io/client';
 
 dotenv.config();
 const app = express();
+collectDefaultMetrics();
 
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
 app.use(express.json());
@@ -23,6 +25,11 @@ app.get('/api/health', async (req,res) => {
   } catch {
     res.status(500).json({ status:'error', database:'disconnected' });
   }
+});
+
+app.get('/api/metrics', async (req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
 });
 
 app.use('/api/auth', authRoutes);
