@@ -20,8 +20,8 @@ resources:
 images:
   - name: insight-hub-backend
     newName: mofarhankhann/insight-hub-backend
-    newTag: "18"
+    newTag: "21"
 
   - name: insight-hub-frontend
     newName: mofarhankhann/insight-hub-frontend
-    newTag: "18"
+    newTag: "21"
