@@ -98,12 +98,14 @@ pipeline {
         stage('Kubernetes Manifest Validation'){
             steps{
                 sh '''
-                    kubectl kustomize k8s/ > /tmp/insight-hub-rendered.yaml
+                    kubectl kustomize k8s/ > insight-hub-rendered.yaml
 
                     kubeconform \
                         -strict \
                         -summary \
-                        /tmp/insight-hub-rendered.yaml
+                        -schema-location default \
+                        -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+                        insight-hub-rendered.yaml
                 '''
             }
         }
