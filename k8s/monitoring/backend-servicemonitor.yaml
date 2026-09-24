@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: insight-hub-backend
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - insight-hub
+    
+  selector:
+    matchLabels:
+      app: backend
+
+  endpoints:
+    - port: http
+      path: /api/metrics
+      interval: 5s

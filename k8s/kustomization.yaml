@@ -15,6 +15,7 @@ resources:
   - backend/service.yml
   - frontend/deployment.yml
   - frontend/service.yml
+  - monitoring/backend-servicemonitor.yaml
 
 images:
   - name: insight-hub-backend
