@@ -6,6 +6,8 @@ pipeline {
         BACKEND_IMAGE = "insight-hub-backend"
         FRONTEND_IMAGE = "insight-hub-frontend"
         IMAGE_TAG = "${BUILD_NUMBER}"
+
+        SONAR_SCANNER_HOME = tool 'SonarQube-Scanner'
     }
 
     stages {
@@ -44,6 +46,16 @@ pipeline {
                         --severity HIGH,CRITICAL \
                         --exit-code 1
                 '''
+            }
+        }
+
+        stage('SonarQube Code Analysis'){
+            steps{
+                withSonarQubeEnv('SonarQube'){
+                    sh '''
+                        ${SONAR_SCANNER_HOME}/bin/sonar-scanner
+                    '''
+                }
             }
         }
 
