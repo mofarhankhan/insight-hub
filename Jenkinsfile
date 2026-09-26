@@ -10,6 +10,10 @@ pipeline {
         SONAR_SCANNER_HOME = tool 'SonarQube-Scanner'
     }
 
+    triggers {
+        githubPush()
+    }
+
     stages {
         stage('Checkout'){
             steps{
@@ -203,16 +207,68 @@ pipeline {
     }
 
     post {
-        always{
+        always {
             echo 'Pipeline Execution finished!!!'
         }
 
-        success{
+        success {
             echo 'CI security checks and Docker builds completed successfully!!!'
+
+            emailext(
+                to: 'farhankhann1180@gmail.com',
+                subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                mimeType: 'text/html',
+                body: """
+                    <html>
+                    <body>
+                        <h2 style="color:green;">Jenkins Build Successful</h2>
+
+                        <p><b>Project:</b> ${env.JOB_NAME}</p>
+                        <p><b>Build Number:</b> #${env.BUILD_NUMBER}</p>
+                        <p><b>Status:</b> SUCCESS</p>
+                        <p><b>Duration:</b> ${currentBuild.durationString}</p>
+
+                        <p>
+                            <a href="${env.BUILD_URL}">
+                                View Build in Jenkins
+                            </a>
+                        </p>
+
+                        <p>All configured CI/CD checks completed successfully.</p>
+                    </body>
+                    </html>
+                """
+            )
         }
 
-        failure{
+        failure {
             echo 'Pipeline failed. Review the failed stage in Jenkins!!!'
+
+            emailext(
+                to: 'farhankhann1180@gmail.com',
+                subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                mimeType: 'text/html',
+                body: """
+                    <html>
+                    <body>
+                        <h2 style="color:red;">Jenkins Build Failed</h2>
+
+                        <p><b>Project:</b> ${env.JOB_NAME}</p>
+                        <p><b>Build Number:</b> #${env.BUILD_NUMBER}</p>
+                        <p><b>Status:</b> FAILED</p>
+                        <p><b>Duration:</b> ${currentBuild.durationString}</p>
+
+                        <p>
+                            <a href="${env.BUILD_URL}">
+                                View Build in Jenkins
+                            </a>
+                        </p>
+
+                        <p>Please review the Jenkins console output to identify the failed stage.</p>
+                    </body>
+                    </html>
+                """
+            )
         }
     }
     
