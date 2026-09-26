@@ -18,7 +18,7 @@ The application provides a centralized platform to:
 - Track transactions
 - Analyze offering/service performance
 - View business/activity events
-- Manage user preferences
+- Manage dashboard settings
 - Authenticate users securely
 
 The project was then extended into a complete **DevSecOps deployment platform**, covering the complete lifecycle from:
@@ -45,45 +45,16 @@ Kubernetes
 Prometheus
      ↓
 Grafana
-
-The main objective of this project is to demonstrate how a modern application can be built, secured, containerized, deployed, automated and monitored using industry-relevant DevOps tools.
-
-🎯 What This Project Demonstrates
-
-This project demonstrates practical implementation of:
-
-Full-stack application development
-REST API architecture
-JWT authentication
-MySQL database integration
-Docker containerization
-Docker Compose
-Jenkins CI/CD
-GitHub Webhooks
-SonarQube code analysis
-SonarQube Quality Gates
-Trivy security scanning
-Docker image security scanning
-Kubernetes
-Kustomize
-Kubernetes manifest validation
-Docker Hub
-ArgoCD GitOps
-ArgoCD Image Updater
-Prometheus monitoring
-Grafana visualization
-AWS EC2 deployment
-CI/CD email notifications
-🖥️ Application
-What is InsightHub?
-
-InsightHub is a dashboard-driven Business Intelligence application that gives users a centralized view of business operations and analytics.
-
-The application contains:
-
+🖥️ Application Features
+🔐 Authentication
+JWT-based authentication
+Password hashing using bcrypt
+Protected frontend routes
+Protected backend APIs
+Demo administrator account
 📊 Dashboard
-Revenue KPIs
-Customer statistics
+Total revenue
+Total customers
 Active subscriptions
 Conversion rate
 Revenue charts
@@ -95,8 +66,8 @@ Recent activity
 Revenue trends
 Customer growth
 Acquisition channels
-Offering performance
-Summary statistics
+Top performing offerings
+Business summary statistics
 👥 Customers
 Customer listing
 Search
@@ -107,116 +78,147 @@ Customer lifetime value
 Transaction listing
 Search
 Status filtering
-Amount
-Customer
+Transaction amount
+Customer information
 Date
 Payment method
 📦 Offerings
+Offering performance
 Revenue
 Units
 Growth
-Performance
 Status
 ⚙️ Settings
 Profile information
 Notification preferences
-Appearance settings
+Appearance preferences
 Security section
-🔐 Authentication
-Login
-JWT authentication
-Password hashing using bcrypt
-Protected frontend routes
-Protected backend APIs
 📸 Application Screenshots
 Dashboard
 
 Analytics
 
-These screenshots demonstrate the actual application that is being containerized and deployed through the DevSecOps pipeline.
+The screenshots demonstrate the actual Business Intelligence application deployed through the DevSecOps workflow.
 
-🏗️ System Architecture
+🏗️ Architecture
 
-The complete architecture consists of four major layers:
+The architecture is divided into four major areas:
 
-1. Source & CI
+                    AWS EC2 Environment
+                           │
+        ┌──────────────────┴──────────────────┐
+        │                                     │
+        ▼                                     ▼
+ DevSecOps EC2                         Kubernetes EC2
+        │                                     │
+        ├── Jenkins                           ├── Kubernetes
+        └── SonarQube                         ├── ArgoCD
+                                              ├── Image Updater
+                                              ├── Prometheus
+                                              ├── Grafana
+                                              └── InsightHub
+Application Runtime
+                    Kubernetes
+                        │
+              ┌─────────┼─────────┐
+              │         │         │
+              ▼         ▼         ▼
+          Frontend   Backend    MySQL
+                         │
+                         ▼
+                    REST APIs
+CI/CD and GitOps
 Developer
-    ↓
-GitHub
-    ↓
-GitHub Webhook
-    ↓
-Jenkins
-2. DevSecOps
-Jenkins
-   ├── Dependency Installation
-   ├── Filesystem Security Scan
-   ├── SonarQube Analysis
-   ├── Quality Gate
-   ├── Docker Build
-   ├── Docker Image Scan
-   └── Kubernetes Validation
-3. GitOps & Deployment
-Docker Hub
-     ↓
+    │
+    ▼
+ GitHub
+    │
+    │ Webhook
+    ▼
+ Jenkins
+    │
+    ├── Code Analysis
+    ├── Security Scanning
+    ├── Docker Build
+    └── Kubernetes Validation
+    │
+    ▼
+ Docker Hub
+    │
+    ▼
 ArgoCD Image Updater
-     ↓
-ArgoCD
-     ↓
+    │
+    ▼
+ ArgoCD
+    │
+    ▼
 Kubernetes
-4. Observability
-Application
-     ↓
-/api/metrics
-     ↓
-ServiceMonitor
-     ↓
-Prometheus
-     ↓
-Grafana
+Monitoring
+InsightHub Backend
+        │
+        ▼
+ /api/metrics
+        │
+        ▼
+ ServiceMonitor
+        │
+        ▼
+ Prometheus
+        │
+        ▼
+ Grafana
 ☁️ AWS Infrastructure
 
-The project is hosted on AWS EC2 using two EC2 instances.
+The project is deployed using two AWS EC2 instances.
 
-EC2 — DevSecOps / CI Server
+EC2 — DevSecOps Server
 
-The first EC2 instance is used for CI and code-quality tooling.
+The first EC2 instance is dedicated to CI and code-quality tooling.
 
-It hosts:
-
+EC2 Instance
+     │
+     ├── Jenkins
+     └── SonarQube
 Jenkins
+
+Jenkins is responsible for:
+
+CI pipeline execution
+GitHub integration
+Dependency installation
+Security scanning
+SonarQube analysis
+Docker image building
+Kubernetes manifest validation
+Docker Hub publishing
+Email notifications
 SonarQube
 
-Jenkins executes the CI pipeline whenever code is pushed to GitHub.
+SonarQube is integrated into Jenkins for:
 
-EC2 — Kubernetes / Application Server
+Static code analysis
+Code quality inspection
+Quality Gate enforcement
+EC2 — Kubernetes Server
 
-The second EC2 instance is used for the Kubernetes/application environment.
+The second EC2 instance hosts the application delivery and monitoring environment.
 
-It hosts:
+EC2 Instance
+     │
+     ├── Kubernetes
+     ├── ArgoCD
+     ├── ArgoCD Image Updater
+     ├── Prometheus
+     ├── Grafana
+     └── InsightHub workloads
 
-Kubernetes
-ArgoCD
-ArgoCD Image Updater
-Prometheus
-Grafana
-InsightHub workloads
+AWS Security Groups are used to control network access to the EC2 instances.
 
-The Kubernetes environment runs:
+This project currently uses EC2-based infrastructure. Services such as EKS, RDS, ALB and Terraform are not part of the implemented architecture.
 
-Frontend
-Backend
-MySQL
+🔄 CI Pipeline — Jenkins
 
-AWS Security Groups are used to control network access to the EC2 environments.
-
-The project does not claim AWS services that are not actually implemented. There is no EKS, RDS, Terraform or load balancer dependency in the current architecture.
-
-🔄 CI/CD Pipeline
-
-The Jenkins pipeline is triggered through a GitHub Webhook.
-
-A normal code change follows this flow:
+A GitHub push triggers Jenkins through a GitHub Webhook.
 
 Developer
     ↓
@@ -224,82 +226,102 @@ git push
     ↓
 GitHub
     ↓
-Webhook
+GitHub Webhook
     ↓
-Jenkins
+Jenkins Pipeline
 
-Once Jenkins starts, the following stages are executed.
+The Jenkins pipeline contains the following major stages:
 
+Checkout
+   ↓
+Install Dependencies
+   ↓
+Filesystem Security Scan
+   ↓
+SonarQube Code Analysis
+   ↓
+SonarQube Quality Gate
+   ↓
+Docker Image Build
+   ↓
+Docker Image Security Scan
+   ↓
+Kubernetes Manifest Validation
+   ↓
+Docker Registry Push
 1️⃣ Checkout
 
-Jenkins checks out the latest source code from GitHub.
+Jenkins checks out the latest source code from the GitHub repository.
+
+This ensures that every pipeline execution works against the latest committed version.
 
 2️⃣ Install Dependencies
 
 Frontend and backend dependencies are installed.
 
-The two dependency installation tasks run in parallel to reduce pipeline execution time.
+The two tasks are executed in parallel:
 
              Jenkins
                 │
         ┌───────┴───────┐
-        ↓               ↓
+        ▼               ▼
      Backend          Frontend
-    npm install      npm install
+   npm install       npm install
+
+This reduces unnecessary pipeline execution time.
+
 3️⃣ Filesystem Security Scan
 
-Trivy scans the project filesystem for security vulnerabilities.
+Trivy scans the source filesystem for security vulnerabilities.
 
 Source Code
      ↓
    Trivy
      ↓
-Filesystem Security Results
+Security Findings
 
-This allows security checks to happen before Docker images are published.
+This provides an early security check before container images are published.
 
 4️⃣ SonarQube Code Analysis
 
-The source code is analyzed using SonarQube.
+Jenkins sends the application source code to SonarQube.
 
-The analysis covers:
+The project analyzes:
 
 server/src
 client/src
 
-SonarQube is used to identify code-quality and maintainability issues before the application proceeds further through the pipeline.
+SonarQube helps identify code-quality and maintainability issues.
 
 5️⃣ SonarQube Quality Gate
 
-After the analysis, Jenkins waits for the SonarQube Quality Gate.
+After analysis, Jenkins waits for the SonarQube Quality Gate.
 
 SonarQube Analysis
-       ↓
+        ↓
    Quality Gate
-       ↓
+        ↓
    Pass / Fail
 
-A failed Quality Gate prevents the pipeline from continuing.
-
-SonarQube Evidence
+The pipeline only proceeds when the configured Quality Gate passes.
 
 6️⃣ Docker Image Build
 
-The frontend and backend are packaged into separate Docker images.
+The application is packaged into separate Docker images.
 
 client/Dockerfile
-       ↓
+        ↓
 Frontend Image
 
 server/Dockerfile
-       ↓
+        ↓
 Backend Image
 
-The two image builds run in parallel.
+The frontend and backend images are built independently.
 
 7️⃣ Docker Image Security Scan
 
-After building the images, Trivy scans them for vulnerabilities.
+After building the images, Trivy scans the Docker images for vulnerabilities.
 
 Docker Image
      ↓
@@ -307,45 +329,43 @@ Docker Image
      ↓
 Vulnerability Results
 
-This ensures that container images are checked before being pushed to the registry.
-
-Trivy Evidence
+This provides a second security layer at the container level.
 
 8️⃣ Kubernetes Manifest Validation
 
-Before the deployment artifacts are considered valid, Kubernetes manifests are rendered using Kustomize.
+Before deployment, Kubernetes manifests are rendered using Kustomize:
 
 kubectl kustomize k8s/
 
-The rendered resources are then validated using kubeconform.
-
-This helps catch invalid Kubernetes manifests before deployment.
+The generated manifests are validated using kubeconform.
 
 The project successfully validated:
 
-12 resources
+12 Kubernetes resources
 Valid: 12
 Invalid: 0
 Errors: 0
 Skipped: 0
+
+This prevents malformed Kubernetes resources from reaching the deployment stage.
+
 9️⃣ Docker Hub Push
 
-After passing the required CI checks, the Docker images are pushed to Docker Hub.
-
-Images:
+After successful CI checks, Jenkins pushes the application images to Docker Hub.
 
 mofarhankhann/insight-hub-backend
 mofarhankhann/insight-hub-frontend
 
-Image tags are based on Jenkins build numbers.
+Images use Jenkins build numbers as tags.
 
-Docker Hub Evidence
+Example:
+
+insight-hub-backend:30
+insight-hub-frontend:30
 
 🐳 Docker
 
 The application is containerized using Docker.
-
-The repository contains:
 
 client/
 └── Dockerfile
@@ -355,21 +375,20 @@ server/
 
 docker-compose.yml
 
-The frontend and backend are maintained as separate images.
+Docker provides:
 
-This provides:
+Reproducible application environments
+Consistent builds
+Separate frontend/backend containers
+Easy local development
+Kubernetes-ready application images
+☸️ Kubernetes Deployment
 
-Consistent application environments
-Reproducible builds
-Easy deployment to Kubernetes
-Separation between application components
-☸️ Kubernetes
-
-InsightHub is deployed into the Kubernetes namespace:
+The application runs inside Kubernetes namespace:
 
 insight-hub
 
-The main application workloads are:
+The main workloads are:
 
 Frontend
 Backend
@@ -383,45 +402,54 @@ Services
 ConfigMap
 Secret
 Ingress
-MySQL PVC
+PersistentVolumeClaim
 ServiceMonitor
 Kustomization
-Kubernetes Architecture
-                 Kubernetes
-                     │
-          ┌──────────┼──────────┐
-          ↓          ↓          ↓
-      Frontend     Backend     MySQL
-          │          │           │
-          │          └───────────┘
-          │
-          ↓
-      Application
-Kubernetes Evidence
-
-Useful verification:
-
+Kubernetes Application Flow
+                    Kubernetes
+                         │
+             ┌───────────┼───────────┐
+             ▼           ▼           ▼
+         Frontend      Backend      MySQL
+             │           │
+             │           └───────┐
+             │                   │
+             ▼                   ▼
+          Browser            Database
+Kubernetes Verification
 kubectl get pods -n insight-hub
 kubectl get deployment -n insight-hub \
   -o custom-columns='NAME:.metadata.name,IMAGE:.spec.template.spec.containers[*].image'
+
+Example verified deployment:
+
+backend-deployment   mofarhankhann/insight-hub-backend:30
+frontend             mofarhankhann/insight-hub-frontend:30
+mysql-deployment     mysql:8.0
+
 🧩 Kustomize
 
-Kubernetes configuration is organized using Kustomize.
+Kubernetes resources are organized using Kustomize.
 
-The main configuration is:
+Main configuration:
 
 k8s/kustomization.yaml
 
-Kustomize manages the application's Kubernetes resource collection and image configuration.
+Kustomize is used to:
 
-The complete configuration can be rendered with:
+Organize Kubernetes resources
+Manage application configuration
+Manage container image configuration
+Render the complete Kubernetes manifest
+
+Render configuration:
 
 kubectl kustomize k8s/
 🔁 GitOps with ArgoCD
 
 ArgoCD is responsible for the Continuous Delivery side of the project.
 
-The GitOps flow is:
+The GitOps workflow is:
 
 GitHub Repository
        ↓
@@ -429,22 +457,26 @@ GitHub Repository
        ↓
    Kubernetes
 
-The ArgoCD application tracks the Kubernetes configuration stored in the repository.
+ArgoCD continuously manages the Kubernetes application state.
 
-The application is configured for automated synchronization.
+The application is configured with automated synchronization.
 
-ArgoCD Verification
+ArgoCD Application
+Application:
+insight-hub
+
+Verification:
+
 kubectl get application insight-hub -n argocd
 
-Expected state:
+Verified state:
 
 SYNC STATUS   → Synced
 HEALTH STATUS → Healthy
-ArgoCD Evidence
 
 🔄 ArgoCD Image Updater
 
-ArgoCD Image Updater is used to automate image updates after Jenkins publishes a new Docker image.
+ArgoCD Image Updater automates the deployment of newly published Docker images.
 
 The complete flow is:
 
@@ -468,23 +500,24 @@ The project uses:
 
 newest-build
 
-because the image tags are based on Jenkins build numbers.
+because Docker images are tagged using Jenkins build numbers.
 
-For example:
+Example:
 
 backend:28
 frontend:28
 
-can be automatically updated to:
+After a newer Jenkins build:
 
 backend:30
 frontend:30
 
-The live Kubernetes deployment was verified with:
+The Image Updater detected and updated both application images.
+
+Verified live deployment:
 
 mofarhankhann/insight-hub-backend:30
 mofarhankhann/insight-hub-frontend:30
-Image Updater Evidence
 
 📊 Monitoring & Observability
 
@@ -493,22 +526,22 @@ Monitoring is implemented using:
 Prometheus
 Grafana
 Kubernetes ServiceMonitor
-Prometheus-compatible application metrics
+Application metrics
 Application Metrics
 
 The backend exposes:
 
 GET /api/metrics
 
-The endpoint is implemented using:
+Metrics are generated using:
 
 @prometheus-io/client
 
-It exposes Node.js/process metrics that can be scraped by Prometheus.
+The endpoint exposes Node.js/process metrics that can be collected by Prometheus.
 
 ServiceMonitor
 
-The backend Kubernetes Service is connected to Prometheus using a Kubernetes ServiceMonitor.
+The backend Kubernetes Service is connected to Prometheus using a ServiceMonitor.
 
 Configuration:
 
@@ -518,100 +551,106 @@ Prometheus scrapes:
 
 /api/metrics
 
-with a configured interval of:
+with an interval of:
 
 5 seconds
 Monitoring Flow
 InsightHub Backend
        │
-       │ /api/metrics
-       ↓
-Kubernetes Service
-       ↓
-ServiceMonitor
-       ↓
-Prometheus
-       ↓
-Grafana
+       ▼
+ /api/metrics
+       │
+       ▼
+ Kubernetes Service
+       │
+       ▼
+ ServiceMonitor
+       │
+       ▼
+ Prometheus
+       │
+       ▼
+ Grafana
 Prometheus
 
 Prometheus collects metrics from the Kubernetes environment and InsightHub backend.
 
 Grafana
 
-Grafana is used to visualize the collected metrics.
+Grafana provides visualization of the collected metrics.
 
 📧 Jenkins Email Notifications
 
 Jenkins is configured with email notifications for pipeline results.
 
-The pipeline can notify when:
+The pipeline can send notifications for:
 
-Build → SUCCESS
-Build → FAILURE
+Build SUCCESS
+Build FAILURE
 
-This provides visibility into CI status without manually checking Jenkins after every build.
+This allows pipeline status to be monitored without manually checking Jenkins after every execution.
 
 🔐 Security & Secrets
 
-Security is integrated into the delivery pipeline.
+Security is integrated into the development and deployment workflow.
 
-Security controls implemented
-Security Area	Implementation
+Implemented Security Controls
+Area	Tool / Implementation
 Source Code Quality	SonarQube
 Quality Enforcement	SonarQube Quality Gate
 Filesystem Security	Trivy
 Container Security	Trivy
 Kubernetes Validation	kubeconform
-Secrets	Environment variables / Jenkins credentials
+Credentials	Jenkins Credentials
+Environment Secrets	.env / Kubernetes Secret
 Network Access	AWS Security Groups
 
-Sensitive information is intentionally not committed to GitHub.
+Sensitive values are not committed to GitHub.
 
-Examples include:
+Examples:
 
 .env
-JWT secrets
 Database passwords
+JWT secrets
 Docker Hub credentials
 SonarQube tokens
 SMTP credentials
 AWS credentials
 
-The repository uses example configuration files such as:
+Example configuration files are provided where required:
 
 server/.env.example
 client/.env.example
-🔁 CI vs CD Responsibility
+🔁 CI/CD Responsibility Separation
 
-One important design decision in this project is the separation between CI and CD.
+A major design decision in this project is separating CI from CD.
 
 Jenkins — Continuous Integration
 
-Jenkins is responsible for:
+Jenkins handles:
 
-Checkout
-   ↓
+Source Checkout
+       ↓
 Dependencies
-   ↓
+       ↓
 Security Scan
-   ↓
+       ↓
 SonarQube
-   ↓
+       ↓
 Quality Gate
-   ↓
+       ↓
 Docker Build
-   ↓
+       ↓
 Image Scan
-   ↓
+       ↓
 Kubernetes Validation
-   ↓
+       ↓
 Docker Hub Push
 ArgoCD — Continuous Delivery
 
 ArgoCD handles:
 
-Container Image
+New Container Image
        ↓
 ArgoCD Image Updater
        ↓
@@ -619,29 +658,15 @@ ArgoCD
        ↓
 Kubernetes
 
-This prevents Jenkins from becoming responsible for directly modifying the Kubernetes deployment workflow.
+This gives each platform a clear responsibility.
 
-🔄 Avoiding the Jenkins Trigger Loop
+🔄 Jenkins Trigger Loop Prevention
 
-An earlier approach used Jenkins to modify Kubernetes image tags and push those changes back to GitHub.
+During development, an automated Jenkins workflow that pushed generated Kubernetes image-tag changes back into GitHub could cause repeated builds.
 
-That could create:
+The workflow was redesigned so Jenkins does not push generated deployment changes back to GitHub.
 
-Jenkins
-   ↓
-GitHub Push
-   ↓
-Jenkins
-   ↓
-GitHub Push
-   ↓
-Jenkins
-   ↓
-...
-
-The implementation was changed so Jenkins no longer pushes generated deployment changes back to GitHub.
-
-The current design is:
+Instead:
 
 GitHub
    ↓
@@ -655,12 +680,24 @@ ArgoCD
    ↓
 Kubernetes
 
-This gives Jenkins a clear CI responsibility while ArgoCD manages deployment automation.
+Therefore:
+
+One GitHub Push
+       ↓
+One Jenkins Build
+       ↓
+Docker Image
+       ↓
+Automated Deployment
+
+This keeps the CI pipeline clean and prevents a Jenkins → GitHub → Jenkins trigger loop.
 
 📁 Project Structure
 insight-hub/
 │
 ├── client/
+│   ├── .dockerignore
+│   ├── .env.example
 │   ├── Dockerfile
 │   ├── nginx.conf
 │   ├── package.json
@@ -674,6 +711,8 @@ insight-hub/
 │       └── styles.css
 │
 ├── server/
+│   ├── .dockerignore
+│   ├── .env.example
 │   ├── Dockerfile
 │   ├── package.json
 │   └── src/
@@ -700,7 +739,7 @@ insight-hub/
 ├── sonar-project.properties
 └── README.md
 🧰 Technology Stack
-Layer	Technologies
+Category	Technologies
 Frontend	React, Vite, React Router, Axios, Recharts
 Backend	Node.js, Express
 Database	MySQL 8
@@ -709,8 +748,8 @@ Containerization	Docker, Docker Compose
 Source Control	Git, GitHub
 CI	Jenkins
 Code Quality	SonarQube
-Security	Trivy
-Registry	Docker Hub
+Security Scanning	Trivy
+Container Registry	Docker Hub
 Orchestration	Kubernetes
 Kubernetes Configuration	Kustomize
 Manifest Validation	kubeconform
@@ -724,20 +763,20 @@ Node.js 18+
 npm
 MySQL 8+
 
-Verify:
+Check:
 
 node -v
 npm -v
 mysql --version
-Backend
+Backend Setup
 cd server
 npm install
 
-Create .env:
+Create environment file:
 
 cp .env.example .env
 
-Configure the database and application variables:
+Configure:
 
 PORT=5000
 
@@ -759,14 +798,14 @@ Backend:
 
 http://localhost:5000
 
-Health endpoint:
+Health check:
 
 http://localhost:5000/api/health
-Frontend
+Frontend Setup
 cd client
 npm install
 
-Create .env:
+Create:
 
 VITE_API_URL=http://localhost:5000/api
 
@@ -784,7 +823,7 @@ For local/demo usage:
 Email:    admin@insighthub.local
 Password: Admin@123
 
-This is a development/demo account only. Do not use it as a production credential.
+This credential is for development/demo purposes only and must not be used in production.
 
 🩺 Health Check
 
@@ -792,10 +831,7 @@ The backend provides:
 
 GET /api/health
 
-A healthy response confirms:
-
-API is running
-MySQL connection is working
+A successful response confirms that the API and database connection are working.
 
 Example:
 
@@ -806,8 +842,9 @@ Example:
 📡 API Overview
 Authentication
 POST /api/auth/login
-Analytics
+Dashboard
 GET /api/analytics/dashboard
+Analytics
 GET /api/analytics/overview
 Customers
 GET /api/customers
@@ -826,11 +863,11 @@ Protected APIs use:
 Authorization: Bearer <token>
 📸 Project Evidence
 
-The following screenshots should be maintained in:
+Screenshots are maintained under:
 
 docs/images/
 
-Recommended structure:
+Recommended files:
 
 docs/
 └── images/
@@ -847,17 +884,20 @@ docs/
     ├── prometheus-targets.png
     └── grafana-dashboard.png
 
-These screenshots provide visual proof of the implementation instead of only describing the tools.
+These screenshots provide visual evidence of the implemented application and DevSecOps workflow.
 
 ✅ Final Deployment Verification
 
 The final environment was verified using Kubernetes and ArgoCD.
 
-Kubernetes
+Kubernetes Pods
 kubectl get pods -n insight-hub
 
-Frontend and backend pods were running successfully.
+Verified:
 
+backend-deployment     1/1 Running
+frontend               1/1 Running
+mysql-deployment       1/1 Running
 ArgoCD
 kubectl get application insight-hub -n argocd
 
@@ -865,50 +905,49 @@ Verified:
 
 SYNC STATUS   → Synced
 HEALTH STATUS → Healthy
-Deployed Images
+Live Images
 mofarhankhann/insight-hub-backend:30
 mofarhankhann/insight-hub-frontend:30
+mysql:8.0
 
-This confirms the complete path from CI image publishing through automated image update and Kubernetes rollout.
+This confirms that the application was successfully built, published, updated and deployed through the automated workflow.
 
-💡 Key Engineering Decisions
-Why Jenkins + ArgoCD?
+🧠 Key DevOps Concepts Demonstrated
 
-Jenkins handles CI activities such as:
+This project demonstrates practical understanding of:
 
-Build
-Analysis
-Security scanning
-Image creation
-Registry publishing
+CI/CD pipeline design
+GitHub Webhooks
+Jenkins Pipeline as Code
+Parallel Jenkins stages
+Static code analysis
+Quality Gates
+Shift-left security
+Filesystem vulnerability scanning
+Container image vulnerability scanning
+Docker image versioning
+Container registries
+Kubernetes Deployments
+Kubernetes Services
+Kubernetes Secrets and ConfigMaps
+Persistent Volumes
+Ingress
+Kustomize
+Kubernetes manifest validation
+GitOps
+ArgoCD
+Automated image updates
+Deployment automation
+Prometheus metrics
+ServiceMonitor
+Grafana dashboards
+AWS EC2 infrastructure
+Security Group based network access
+🚧 Future Improvements
 
-ArgoCD handles Kubernetes deployment through GitOps.
+The current implementation can be extended further with:
 
-This keeps CI and CD responsibilities separated.
-
-Why ArgoCD Image Updater?
-
-Jenkins publishes the container image but does not need to continuously modify Git deployment manifests.
-
-ArgoCD Image Updater detects the new image and updates the ArgoCD application specification.
-
-Why Kubernetes?
-
-Kubernetes provides:
-
-Container orchestration
-Service discovery
-Rolling deployments
-Application isolation
-Declarative workload management
-Why Prometheus + Grafana?
-
-Prometheus collects application and infrastructure metrics while Grafana provides visualization and operational visibility.
-
-🚧 Production Improvements
-
-The current project is a portfolio/learning implementation. A production deployment could additionally introduce:
-
+Terraform / Infrastructure as Code
 HTTPS/TLS
 Domain and DNS
 Kubernetes NetworkPolicies
@@ -919,17 +958,16 @@ Alertmanager
 External secret management
 Database backup strategy
 Image signing
-RBAC hardening
-Infrastructure as Code
+Kubernetes RBAC hardening
 High availability
 Disaster recovery
 
 These are future improvements and are not represented as currently implemented features.
 
-📄 Resume Description
+💼 Resume Description
 InsightHub — DevSecOps Business Intelligence Platform
 
-Built and deployed a full-stack Business Intelligence Dashboard using React, Node.js, Express and MySQL. Implemented a DevSecOps CI pipeline with Jenkins, SonarQube and Trivy, containerized applications using Docker, deployed workloads on Kubernetes, and implemented GitOps-based continuous delivery using ArgoCD and ArgoCD Image Updater. Added Kubernetes manifest validation and Prometheus/Grafana monitoring with application-level metrics.
+Built and deployed a full-stack Business Intelligence Dashboard using React, Node.js, Express and MySQL. Implemented a DevSecOps CI pipeline using Jenkins, SonarQube and Trivy, containerized the application using Docker, deployed workloads on Kubernetes, and implemented GitOps-based Continuous Delivery using ArgoCD and ArgoCD Image Updater. Added Kubernetes manifest validation and Prometheus/Grafana monitoring with application-level metrics.
 
 🔗 Repository
 
@@ -943,41 +981,4 @@ Mohd Farhan Khan
 GitHub:
 https://github.com/mofarhankhan
 
-⭐ If you find this project useful, consider giving the repository a star.
-
-
-### Ye version tumhare liye actual sweet spot hai
-
-Isme **application part bhi properly visible hai** aur DevOps part ko sirf “Jenkins, Docker, Kubernetes...” ki list nahi banaya gaya. Recruiter ko actual implementation samajh aayegi:
-
-**Application**
-→ kya banaya
-
-**AWS**
-→ kahan chalaya
-
-**Jenkins**
-→ CI mein kya kiya
-
-**SonarQube/Trivy**
-→ quality + security kaise ki
-
-**Docker**
-→ application kaise package ki
-
-**Kubernetes**
-→ kaise run ki
-
-**ArgoCD**
-→ deployment kaise automate ki
-
-**Image Updater**
-→ new image production-like environment tak kaise pahunchi
-
-**Prometheus/Grafana**
-→ monitoring kaise ki
-
-**Architecture**
-→ sab ek saath kaise connected hai
-
-Aur sabse important: **Terraform, EKS, RDS, ALB, VPC, Loki, Alertmanager, etc. ko implemented bolkar nahi d
+⭐ If you found this project useful, consider giving the repository a star.
