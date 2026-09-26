@@ -1,4 +1,4 @@
-# 🚀 InsightHub — DevSecOps Business Intelligence Platform
+<img width="1536" height="1024" alt="architecture png" src="https://github.com/user-attachments/assets/6e9f8fea-b7d2-4b31-b3c7-13e0778cccc5" /># 🚀 InsightHub — DevSecOps Business Intelligence Platform
 
 <p align="center">
 
