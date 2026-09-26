@@ -21,6 +21,14 @@ pipeline {
             }
         }
 
+        stage('Skip CI Commit') {
+            steps {
+                scmSkip(
+                    skipPattern: '.*\\[ci skip\\].*'
+                )
+            }
+        }
+
         stage('Install Dependencies'){
             parallel {
 
@@ -196,7 +204,7 @@ pipeline {
                             exit 0
                         fi
 
-                        git commit -m "ci: update image tag to ${IMAGE_TAG}"
+                        git commit -m "ci: update image tag to ${IMAGE_TAG} [ci skip]"
 
                         git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/mofarhankhan/insight-hub.git HEAD:main
                     '''
