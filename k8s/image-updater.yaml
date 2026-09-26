@@ -1,0 +1,30 @@
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: insight-hub-image-updater
+  namespace: argocd
+
+spec:
+  commonUpdateSettings:
+    updateStrategy: newest-build
+    forceUpdate: false
+
+  writeBackConfig:
+    method: argocd
+
+  applicationRefs:
+    - namePattern: "insight-hub"
+
+      images:
+
+        - alias: backend
+          imageName: mofarhankhann/insight-hub-backend:28
+          manifestTargets:
+            kustomize:
+              name: insight-hub-backend
+
+        - alias: frontend
+          imageName: mofarhankhann/insight-hub-frontend:28
+          manifestTargets:
+            kustomize:
+              name: insight-hub-frontend

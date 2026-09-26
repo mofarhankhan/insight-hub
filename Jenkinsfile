@@ -21,14 +21,6 @@ pipeline {
             }
         }
 
-        stage('Skip CI Commit') {
-            steps {
-                scmSkip(
-                    skipPattern: '.*\\[ci skip\\].*'
-                )
-            }
-        }
-
         stage('Install Dependencies'){
             parallel {
 
@@ -176,41 +168,6 @@ pipeline {
             }
         }
 
-        stage('Update Kubernetes Image Tag'){
-            steps{
-                sh '''
-                    sed -i "s/newTag: \\"[0-9.]*\\"/newTag: \\"${IMAGE_TAG}\\"/g" k8s/kustomization.yaml
-                '''
-            }
-        }
-
-        stage('Git Commit & Push'){
-            steps{
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'github-credentials',
-                        usernameVariable: 'GIT_USERNAME',
-                        passwordVariable: 'GIT_PASSWORD'
-                    )
-                ]){
-                    sh '''
-                        git config user.name "Jenkins"
-                        git config user.email "jenkins@localhost"
-
-                        git add k8s/kustomization.yaml
-
-                        if git diff --cached --quiet; then
-                            echo "No Kubernetes image tag changes to commit."
-                            exit 0
-                        fi
-
-                        git commit -m "ci: update image tag to ${IMAGE_TAG} [ci skip]"
-
-                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/mofarhankhan/insight-hub.git HEAD:main
-                    '''
-                }
-            }
-        }
 
     }
 
